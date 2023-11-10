@@ -1,0 +1,14 @@
+# Maven
+target/
+pom.xml
+
+# Folders
+.idea/
+
+# Java
+*.class
+
+# Package Files
+*.jar
+*.war
+*.ear

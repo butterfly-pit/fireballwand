@@ -1,0 +1,4 @@
+name: FireballWand2
+version: '${project.version}'
+main: com.themythichunter.fireballwand.FireballWand
+api-version: '1.20'
