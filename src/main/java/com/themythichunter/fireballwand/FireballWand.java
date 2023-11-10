@@ -1,9 +1,8 @@
 package com.themythichunter.fireballwand;
 
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
+import org.bukkit.*;
 import org.bukkit.entity.Fireball;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -38,10 +37,13 @@ public final class FireballWand extends JavaPlugin implements Listener {
         }
 
         Player player = event.getPlayer();
+
+        player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("test"));
+
         ItemStack heldItem = Objects.requireNonNull(event.getItem());
         ItemStack offHandItem = player.getInventory().getItemInOffHand();
 
-        if(heldItem.getType() == Material.BLAZE_ROD && heldItem.getItemMeta().getCustomModelData() == 1000727 && offHandItem.getType() == Material.FIRE_CHARGE) {
+        if(heldItem.getType() == Material.BLAZE_ROD && Objects.requireNonNull(heldItem.getItemMeta()).getCustomModelData() == 1000727 && offHandItem.getType() == Material.FIRE_CHARGE) {
             // Create fireball.
             Fireball fireball = player.getWorld().spawn(player.getEyeLocation(), Fireball.class);
             fireball.setVelocity(player.getEyeLocation().getDirection().normalize().multiply(0.7));
@@ -50,14 +52,14 @@ public final class FireballWand extends JavaPlugin implements Listener {
             fireball.setMetadata("wandfireball", new FixedMetadataValue(this, true));
 
             new BukkitRunnable() {
-                int tick = 0;
-
                 @Override
                 public void run() {
                     Location location = fireball.getLocation();
                     fireball.setVelocity(fireball.getDirection().normalize().multiply(0.7));
 
-                    tick++;
+                    if(location.getWorld() == null) {
+                        return;
+                    }
 
                     location.getWorld().spawnParticle(Particle.FLAME, location, 1, 0.5, 0.5, 0.5, 0.01);
                     location.getWorld().spawnParticle(Particle.FLAME, location, 1, 0.5, 0.5, 0.5, 0.01);
@@ -84,7 +86,10 @@ public final class FireballWand extends JavaPlugin implements Listener {
             event.setCancelled(true);
 
             // Play sound.
-            event.getLocation().getWorld().playSound(event.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 2f, 1.0f);
+            World world = event.getLocation().getWorld();
+            if(world != null) {
+                world.playSound(event.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 2f, 1.0f);
+            }
 
             // Create particles.
             event.getLocation().getWorld().spawnParticle(Particle.EXPLOSION_LARGE, event.getLocation(), 10, 0.5, 0.5, 0.5, 0.01);
