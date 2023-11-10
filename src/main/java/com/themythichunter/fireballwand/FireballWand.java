@@ -41,16 +41,11 @@ public final class FireballWand extends JavaPlugin implements Listener {
         ItemStack heldItem = Objects.requireNonNull(event.getItem());
         ItemStack offHandItem = player.getInventory().getItemInOffHand();
 
-        if(
-                heldItem.getType() == Material.BLAZE_ROD
-                        && heldItem.getItemMeta().getCustomModelData() == 1000727
-                        && offHandItem.getType() == Material.FIRE_CHARGE
-        ) {
+        if(heldItem.getType() == Material.BLAZE_ROD && heldItem.getItemMeta().getCustomModelData() == 1000727 && offHandItem.getType() == Material.FIRE_CHARGE) {
             // Create fireball.
             Fireball fireball = player.getWorld().spawn(player.getEyeLocation(), Fireball.class);
             fireball.setVelocity(player.getEyeLocation().getDirection().normalize().multiply(0.7));
             fireball.setShooter(player);
-            fireball.setIsIncendiary(true);
             fireball.setYield(3.0f);
             fireball.setMetadata("wandfireball", new FixedMetadataValue(this, true));
 
@@ -89,12 +84,7 @@ public final class FireballWand extends JavaPlugin implements Listener {
             event.setCancelled(true);
 
             // Play sound.
-            event.getLocation().getWorld().playSound(
-                    event.getLocation(),
-                    Sound.ENTITY_GENERIC_EXPLODE,
-                    2f,
-                    1.0f
-            );
+            event.getLocation().getWorld().playSound(event.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, 2f, 1.0f);
 
             // Create particles.
             event.getLocation().getWorld().spawnParticle(Particle.EXPLOSION_LARGE, event.getLocation(), 10, 0.5, 0.5, 0.5, 0.01);
