@@ -24,16 +24,17 @@ import java.util.Objects;
 
 public class FireBallWandListeners implements Listener {
     private final FireballWand plugin;
+    private final long wandCooldown;
+    private final int customModelData;
 
     private final DecimalFormat df = new DecimalFormat("#0.00");
 
-    final long WAND_COOLDOWN = 5000;
-    final int WAND_MODEL_DATA = 1000727;
-
-    private final HashMap<String, Long> wandCooldowns = new HashMap<>();
+    private final HashMap<String, Long> cooldowns = new HashMap<>();
 
     public FireBallWandListeners(FireballWand plugin) {
         this.plugin = plugin;
+        this.wandCooldown = plugin.getConfig().getLong("cooldown");
+        this.customModelData = plugin.getConfig().getInt("custom-model-data");
     }
 
     @EventHandler
@@ -53,10 +54,10 @@ public class FireBallWandListeners implements Listener {
         ItemMeta heldMeta = heldItem.getItemMeta();
         assert heldMeta != null;
 
-        if(heldItem.getType() == Material.BLAZE_ROD && heldMeta.getCustomModelData() == WAND_MODEL_DATA && offHandItem.getType() == Material.FIRE_CHARGE) {
+        if(heldItem.getType() == Material.BLAZE_ROD && heldMeta.getCustomModelData() == customModelData && offHandItem.getType() == Material.FIRE_CHARGE) {
             // Check cooldown.
-            if(wandCooldowns.containsKey(player.getName())) {
-                double secondsLeft = (wandCooldowns.get(player.getName()) - System.currentTimeMillis()) / 1000.0;
+            if(cooldowns.containsKey(player.getName())) {
+                double secondsLeft = (cooldowns.get(player.getName()) - System.currentTimeMillis()) / 1000.0;
 
                 if(secondsLeft > 0) {
                     player.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(ChatColor.RED + "You must wait " + df.format(secondsLeft) + " seconds before using this again!"));
@@ -96,7 +97,7 @@ public class FireBallWandListeners implements Listener {
             offHandItem.setAmount(offHandItem.getAmount() - 1);
 
             // Set cooldown.
-            this.wandCooldowns.put(player.getName(), System.currentTimeMillis() + this.WAND_COOLDOWN);
+            this.cooldowns.put(player.getName(), System.currentTimeMillis() + this.wandCooldown);
 
             // Remove glint and add it later.
             heldItem.removeEnchantment(Enchantment.DURABILITY);
@@ -106,7 +107,7 @@ public class FireBallWandListeners implements Listener {
                     // Add glint later.
                     ItemStack wand;
                     for(ItemStack item : player.getInventory().getContents()) {
-                        if(item != null && item.getType() == Material.BLAZE_ROD && Objects.requireNonNull(item.getItemMeta()).getCustomModelData() == WAND_MODEL_DATA) {
+                        if(item != null && item.getType() == Material.BLAZE_ROD && Objects.requireNonNull(item.getItemMeta()).getCustomModelData() == customModelData) {
                             wand = item;
                             ItemMeta wandMeta = wand.getItemMeta();
                             assert wandMeta != null;
@@ -124,14 +125,14 @@ public class FireBallWandListeners implements Listener {
                         for(ItemStack item : player.getInventory().getContents()) {
                             ItemMeta itemMeta = item.getItemMeta();
                             assert itemMeta != null;
-                            if(item.getType() == Material.BLAZE_ROD && itemMeta.getCustomModelData() == WAND_MODEL_DATA) {
+                            if(item.getType() == Material.BLAZE_ROD && itemMeta.getCustomModelData() == customModelData) {
                                 player.getWorld().playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 0.5f, 1.0f);
                                 break;
                             }
                         }
                     }
                 }
-            }.runTaskLater(this.plugin, (this.WAND_COOLDOWN / 1000) * 20);
+            }.runTaskLater(this.plugin, (this.wandCooldown / 1000) * 20);
         }
     }
 
@@ -162,11 +163,11 @@ public class FireBallWandListeners implements Listener {
         ItemMeta itemMeta = itemStack.getItemMeta();
         assert itemMeta != null;
 
-        if(itemMeta.hasCustomModelData() && itemMeta.getCustomModelData() == WAND_MODEL_DATA) {
+        if(itemMeta.hasCustomModelData() && itemMeta.getCustomModelData() == customModelData) {
             ItemMeta newMeta = itemStack.getItemMeta();
 
-            if(wandCooldowns.containsKey(player.getName())) {
-                double secondsLeft = (wandCooldowns.get(player.getName()) - System.currentTimeMillis()) / 1000.0;
+            if(cooldowns.containsKey(player.getName())) {
+                double secondsLeft = (cooldowns.get(player.getName()) - System.currentTimeMillis()) / 1000.0;
                 if(secondsLeft < 0) {
                     newMeta.addEnchant(Enchantment.DURABILITY, 1, true);
                     newMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
