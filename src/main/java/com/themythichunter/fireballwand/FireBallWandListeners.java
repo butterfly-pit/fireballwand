@@ -38,7 +38,7 @@ public class FireBallWandListeners implements Listener {
 
     @EventHandler
     public void playerInteractEvent(PlayerInteractEvent event) {
-        // Only allow left clicking air or entities.
+        // Only allow left-clicking air or entities.
         if(event.getAction() != Action.LEFT_CLICK_AIR && event.getAction() != Action.LEFT_CLICK_BLOCK) {
             return;
         }
@@ -120,7 +120,6 @@ public class FireBallWandListeners implements Listener {
                     }
 
                     // Play sound.
-                    // TODO: Play sound in off hand too.
                     if(player.getInventory().contains(Material.BLAZE_ROD)) {
                         for(ItemStack item : player.getInventory().getContents()) {
                             ItemMeta itemMeta = item.getItemMeta();

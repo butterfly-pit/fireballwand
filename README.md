@@ -8,3 +8,6 @@ of `1000727` to be recognized as a fireball wand. The following command can be u
 ```
 /minecraft:give @p blaze_rod{CustomModelData:1000727} 1
 ```
+## Known Bugs/Issues
+- Ready "ding" does not play after firing a fireball and switching the wand to another item.
+- Multiple blaze rods do not behave the way they should.
