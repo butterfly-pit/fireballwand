@@ -66,32 +66,45 @@ public class FireBallWandListeners implements Listener {
                 }
             }
 
-            // Create fireball.
-            Fireball fireball = player.getWorld().spawn(player.getEyeLocation(), Fireball.class);
-            fireball.setVelocity(player.getEyeLocation().getDirection().normalize().multiply(0.7));
-            fireball.setYield(3.0f);
-            fireball.setMetadata("wandfireball", new FixedMetadataValue(this.plugin, true));
-
-            // Spawn particles at flying fireball.
             new BukkitRunnable() {
+                int runs = 0;
+
                 @Override
                 public void run() {
-                    Location location = fireball.getLocation();
-                    fireball.setVelocity(fireball.getDirection().normalize().multiply(0.7));
-                    assert location.getWorld() != null;
-
-                    location.getWorld().spawnParticle(Particle.FLAME, location, 1, 0.5, 0.5, 0.5, 0.01);
-                    location.getWorld().spawnParticle(Particle.FLAME, location, 1, 0.5, 0.5, 0.5, 0.01);
-                    location.getWorld().spawnParticle(Particle.FLAME, location, 1, 0.5, 0.5, 0.5, 0.01);
-
-                    if(fireball.isDead()) {
+                    if(runs == 2) {
                         cancel();
                     }
-                }
-            }.runTaskTimer(this.plugin, 1, 1);
 
-            // Play sound.
-            player.getWorld().playSound(player.getLocation(), Sound.ENTITY_BLAZE_SHOOT, 1.0f, 1.0f);
+                    // Create fireball.
+                    Fireball fireball = player.getWorld().spawn(player.getEyeLocation(), Fireball.class);
+                    fireball.setVelocity(player.getEyeLocation().getDirection().normalize().multiply(0.7));
+                    fireball.setYield(3.0f);
+                    fireball.setMetadata("wandfireball", new FixedMetadataValue(plugin, true));
+
+                    // Spawn particles at flying fireball.
+                    new BukkitRunnable() {
+                        @Override
+                        public void run() {
+                            Location location = fireball.getLocation();
+                            fireball.setVelocity(fireball.getDirection().normalize().multiply(0.7));
+                            assert location.getWorld() != null;
+
+                            location.getWorld().spawnParticle(Particle.FLAME, location, 1, 0.5, 0.5, 0.5, 0.01);
+                            location.getWorld().spawnParticle(Particle.FLAME, location, 1, 0.5, 0.5, 0.5, 0.01);
+                            location.getWorld().spawnParticle(Particle.FLAME, location, 1, 0.5, 0.5, 0.5, 0.01);
+
+                            if(fireball.isDead()) {
+                                cancel();
+                            }
+                        }
+                    }.runTaskTimer(plugin, 1, 1);
+
+                    // Play sound.
+                    player.getWorld().playSound(player.getLocation(), Sound.ENTITY_BLAZE_SHOOT, 1.0f, 1.0f);
+
+                    runs++;
+                }
+            }.runTaskTimer(this.plugin, 1, 4);
 
             // Remove from inventory.
             offHandItem.setAmount(offHandItem.getAmount() - 1);
